@@ -3,6 +3,10 @@ use strict;
 use warnings;
 use feature 'say';
 
+our $VERSION = '1.000';
+
+# ABSTRACT: Collect and compact files containing InfluxDB lines
+
 use Moose;
 use Carp qw(croak);
 use Log::Any qw($log);

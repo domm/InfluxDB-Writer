@@ -3,6 +3,10 @@ use strict;
 use warnings;
 use feature 'say';
 
+our $VERSION = '1.000';
+
+# ABSTRACT: Send lines from a file to InfluxDB
+
 use Moose;
 use Carp qw(croak);
 use Log::Any qw($log);
