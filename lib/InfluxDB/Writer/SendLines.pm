@@ -1,7 +1,11 @@
-package InfluxD::SendLines;
+package InfluxDB::Writer::SendLines;
 use strict;
 use warnings;
 use feature 'say';
+
+our $VERSION = '1.000';
+
+# ABSTRACT: Send lines from a file to InfluxDB
 
 use Moose;
 use Carp qw(croak);
@@ -23,7 +27,7 @@ my @buffer;
 sub run {
     my $self = shift;
 
-    $log->infof( "Starting InfluxD::SendLines %s", $self->file );
+    $log->infof( "Starting %s with file %s",__PACKAGE__, $self->file );
 
     my $f     = $self->file;
     my $lines = `wc -l $f`;
@@ -72,6 +76,7 @@ sub send {
             body         => join( '', @$to_send ),
         }
     );
+
     if ( $res->{status} != 204 ) {
         if (!$second_try
             && (

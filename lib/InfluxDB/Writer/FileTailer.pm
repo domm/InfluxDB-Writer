@@ -1,7 +1,11 @@
-package InfluxD::FileTailer;
+package InfluxDB::Writer::FileTailer;
 use strict;
 use warnings;
 use feature 'say';
+
+our $VERSION = '1.000';
+
+# ABSTRACT: Tail files and send lines to InfluxDB
 
 use Moose;
 use IO::Async::File;
@@ -9,7 +13,7 @@ use IO::Async::FileStream;
 use IO::Async::Loop;
 use Hijk ();
 use Carp qw(croak);
-use Measure::Everything::InfluxDB::Utils qw(line2data data2line);
+use InfluxDB::LineProtocol qw(line2data data2line);
 use Log::Any qw($log);
 use File::Spec::Functions;
 
@@ -40,7 +44,7 @@ sub run {
         croak "Not a directory: " . $self->dir;
     }
 
-    $log->infof( "Starting InfluxD::FileTailer in directory %s", $self->dir );
+    $log->infof( "Starting %s in directory %s", __PACKAGE__, $self->dir );
 
     $self->watch_dir;
 

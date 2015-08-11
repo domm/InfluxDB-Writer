@@ -1,14 +1,19 @@
-package InfluxD::CompactFiles;
+package InfluxDB::Writer::CompactFiles;
 use strict;
 use warnings;
 use feature 'say';
+
+our $VERSION = '1.000';
+
+# ABSTRACT: Collect and compact files containing InfluxDB lines
 
 use Moose;
 use Carp qw(croak);
 use Log::Any qw($log);
 use File::Spec::Functions;
 use Sys::Hostname qw(hostname);
-use Measure::Everything::InfluxDB::Utils qw(line2data data2line);
+use InfluxDB::LineProtocol qw(line2data data2line);
+use Time::Moment;
 
 has 'dir'    => ( is => 'ro', isa => 'Str',     required  => 1 );
 has 'tags'   => ( is => 'ro', isa => 'HashRef', predicate => 'has_tags' );
@@ -21,13 +26,12 @@ sub run {
         croak "Not a directory: " . $self->dir;
     }
 
-    my $now = `date -Iseconds`;
-    chomp($now);
+    my $now = Time::Moment->now->to_string;
     my $outfile = join('_',hostname(),'stats',$now) . '.compacted';
 
     my $target = catfile( $self->dir, $outfile );
     open( my $out, ">>", $target ) || die $!;
-    $log->infof( "Starting InfluxD::CompactFiles of directory %s into %s",
+    $log->infof( "Starting %s of directory %s into %s", __PACKAGE__,
         $self->dir, $target );
 
     opendir( my $dh, $self->dir );

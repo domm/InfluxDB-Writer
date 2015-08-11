@@ -1,11 +1,11 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use lib::projectroot qw(lib local::lib=local extra=Measure-Everything);
+use lib::projectroot qw(lib local::lib=local);
 
 package Runner;
 use Moose;
-extends 'InfluxD::FileTailer';
+extends 'InfluxDB::Writer::FileTailer';
 with 'MooseX::Getopt';
 
 use Log::Any::Adapter ('Stderr');
