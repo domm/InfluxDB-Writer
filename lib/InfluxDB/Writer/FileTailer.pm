@@ -40,7 +40,7 @@ sub run {
         croak "Not a directory: " . $self->dir;
     }
 
-    $log->infof( "Starting InfluxD::FileTailer in directory %s", $self->dir );
+    $log->infof( "Starting %s in directory %s", __PACKAGE__, $self->dir );
 
     $self->watch_dir;
 

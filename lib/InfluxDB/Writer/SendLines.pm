@@ -23,7 +23,7 @@ my @buffer;
 sub run {
     my $self = shift;
 
-    $log->infof( "Starting InfluxD::SendLines %s", $self->file );
+    $log->infof( "Starting %s with file %s",__PACKAGE__, $self->file );
 
     my $f     = $self->file;
     my $lines = `wc -l $f`;

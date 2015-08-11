@@ -27,7 +27,7 @@ sub run {
 
     my $target = catfile( $self->dir, $outfile );
     open( my $out, ">>", $target ) || die $!;
-    $log->infof( "Starting InfluxD::CompactFiles of directory %s into %s",
+    $log->infof( "Starting %s of directory %s into %s", __PACKAGE__
         $self->dir, $target );
 
     opendir( my $dh, $self->dir );
