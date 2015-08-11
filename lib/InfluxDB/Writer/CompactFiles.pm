@@ -1,4 +1,4 @@
-package InfluxD::CompactFiles;
+package InfluxDB::Writer::CompactFiles;
 use strict;
 use warnings;
 use feature 'say';

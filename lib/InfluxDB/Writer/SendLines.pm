@@ -1,4 +1,4 @@
-package InfluxD::SendLines;
+package InfluxDB::Writer::SendLines;
 use strict;
 use warnings;
 use feature 'say';

@@ -1,4 +1,4 @@
-package InfluxD::FileTailer;
+package InfluxDB::Writer::FileTailer;
 use strict;
 use warnings;
 use feature 'say';
