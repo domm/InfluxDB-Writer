@@ -72,6 +72,7 @@ sub send {
             body         => join( '', @$to_send ),
         }
     );
+    
     if ( $res->{status} != 204 ) {
         if (!$second_try
             && (
