@@ -13,6 +13,7 @@ use Log::Any qw($log);
 use File::Spec::Functions;
 use Sys::Hostname qw(hostname);
 use InfluxDB::LineProtocol qw(line2data data2line);
+use Time::Moment;
 
 has 'dir'    => ( is => 'ro', isa => 'Str',     required  => 1 );
 has 'tags'   => ( is => 'ro', isa => 'HashRef', predicate => 'has_tags' );
@@ -25,8 +26,7 @@ sub run {
         croak "Not a directory: " . $self->dir;
     }
 
-    my $now = `date -Iseconds`;
-    chomp($now);
+    my $now = Time::Moment->now->to_string;
     my $outfile = join('_',hostname(),'stats',$now) . '.compacted';
 
     my $target = catfile( $self->dir, $outfile );
