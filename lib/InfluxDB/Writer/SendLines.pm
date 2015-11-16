@@ -99,7 +99,6 @@ sub send {
             %args,
         }
     );
-use Data::Dumper; $Data::Dumper::Maxdepth=3;$Data::Dumper::Sortkeys=1;warn Data::Dumper::Dumper $res;
 
     if ( $res->{status} != 204 ) {
         if (!$second_try
