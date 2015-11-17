@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use lib::projectroot qw(lib local::lib=local);
 
+# ABSTRACT: Tail files and send them to influxdb for live stats
+
 package Runner;
 use Moose;
 extends 'InfluxDB::Writer::FileTailer';

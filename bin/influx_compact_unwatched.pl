@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use lib::projectroot qw(lib local::lib=local);
 
+# ABSTRACT: Compact all files that are currently not watched
+
 package Runner;
 use Moose;
 extends 'InfluxDB::Writer::CompactFiles';
