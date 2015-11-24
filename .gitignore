@@ -1,1 +1,4 @@
+.build
+cpanfile.snapshot
+InfluxDB-Writer-*
 local

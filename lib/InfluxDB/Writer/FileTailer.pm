@@ -17,6 +17,8 @@ use InfluxDB::LineProtocol qw(line2data data2line);
 use Log::Any qw($log);
 use File::Spec::Functions;
 
+with qw(InfluxDB::Writer::AuthHeaderRole);
+
 has 'dir'         => ( is => 'ro', isa => 'Str', required => 1 );
 has 'influx_host' => ( is => 'ro', isa => 'Str', required => 1 );
 has 'influx_port' =>
@@ -151,6 +153,11 @@ sub send {
     my ($self) = @_;
     return unless @buffer;
 
+    my %args;
+    if ( $self->_with_auth ) {
+        $args{head} = [ "Authorization" => $self->_auth_header ];
+    }
+
     $log->debugf( "Sending %i lines to influx", scalar @buffer );
     my $res = Hijk::request(
         {   method       => "POST",
@@ -159,6 +166,7 @@ sub send {
             path         => "/write",
             query_string => "db=" . $self->influx_db,
             body         => join( "\n", @buffer ),
+            %args,
         }
     );
     if ( $res->{status} != 204 ) {

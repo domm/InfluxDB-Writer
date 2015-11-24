@@ -12,30 +12,15 @@ use Carp qw(croak);
 use Log::Any qw($log);
 use File::Spec::Functions;
 use Hijk ();
-use MIME::Base64 qw/encode_base64/;
 
 has 'file'        => ( is => 'ro', isa => 'Str', required => 1 );
 has 'influx_host' => ( is => 'ro', isa => 'Str', required => 1 );
 has 'influx_port' =>
     ( is => 'ro', isa => 'Int', default => 8086, required => 1 );
 has 'influx_db'       => ( is => 'ro', isa => 'Str', required => 1 );
-has 'influx_username' => ( is => 'ro', isa => 'Str', required => 0 );
-has 'influx_password' => ( is => 'ro', isa => 'Str', required => 0 );
 has 'buffer_size'     => ( is => 'ro', isa => 'Int', default  => 1000 );
 
-has '_with_auth' => ( is => 'rw', isa => 'Bool' );
-has '_auth_header' => ( is => 'ro', isa => 'Str', lazy_build => 1 );
-
-sub _build__auth_header {
-    my $self = shift;
-    if ( $self->influx_username && $self->influx_password ) {
-        my $base64 = encode_base64(
-            join( ":", $self->influx_username, $self->influx_password ) );
-        chomp($base64);
-        $self->_auth_header("Basic $base64");
-        $self->_with_auth(1);
-    }
-}
+with qw(InfluxDB::Writer::AuthHeaderRole);
 
 $| = 1;
 
