@@ -71,6 +71,10 @@ sub run {
     $self->_loop->run;
 }
 
+
+sub cleanup_hook {}
+sub archive_hook {}
+
 sub watch_dir {
     my ($self) = @_;
 
@@ -89,21 +93,27 @@ sub watch_dir {
 sub setup_file_watcher {
     my ( $self, $file ) = @_;
 
-    $file =~ /(\d+)\.stats/;
-    my $pid = $1;
-    my $is_running = kill 0, $pid;
-    unless ($is_running) {
+    $file =~ /(\d+)\.stats$/;
+    my $pid = int($1);
+    my $is_running = kill('ZERO', $pid);
+    if (!$is_running) {
+
         if ( my $w = $self->_files->{$file} ) {
             $self->_loop->remove($w);
             undef $w;
             delete $self->_files->{$file};
             $log->infof( "Removed watcher for %s because pid %i is not more",
                 $file, $pid );
+
+            $self->archive_hook($file);
+
         }
         else {
             $log->debugf(
                 "Skipping file %s because pid %i seems to be not running.",
                 $file, $pid );
+
+            $self->cleanup_hook($file);
         }
         return;
     }
@@ -175,8 +185,13 @@ sub send {
             scalar @buffer,
             $res->{body}
         );
+
+        @buffer = ();
+        return;
     }
+
     @buffer = ();
+    return 1;
 }
 
 sub add_tags_to_line {
