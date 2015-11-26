@@ -73,13 +73,19 @@ sub slurp_and_send {
             push(@buffer, $line);
 
             if ( @buffer > $self->flush_size ) {
-                $self->send or return;
+                if (!$self->send) {
+                    $log->warnf("Unable to send buffer (%i lines)", scalar @buffer);
+                    return;
+                }
             }
         }
 
         if (scalar @buffer ) {
             $log->infof( "Clear buffer (size %i) for file %s", scalar(@buffer), $file );
-            $self->send or return;
+            if (!$self->send) {
+                $log->warnf("Unable to send clear buffer (%i lines)", scalar @buffer);
+                return;
+            }
         }
 
         $log->infof( "Finished slurping %s", $file );
