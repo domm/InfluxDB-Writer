@@ -32,12 +32,20 @@ has 'flush_interval' =>
 has 'tags' => ( is => 'ro', isa => 'HashRef', predicate => 'has_tags' );
 has '_files' => ( is => 'ro', isa => 'HashRef', default => sub { {} } );
 has '_loop' => ( is => 'ro', isa => 'IO::Async::Loop', lazy_build => 1 );
+has 'buffer' => ( is => 'ro', isa => 'ArrayRef[Str]', default => sub { [] }, traits => ['Array'],
+    handles => {
+        buffer_push => 'push',
+        buffer_all => 'elements',
+        buffer_size => 'count',
+        buffer_splice => 'splice',
+        buffer_is_empty => 'is_empty',
+    },
+
+);
 
 sub _build__loop {
     return IO::Async::Loop->new;
 }
-
-my @buffer;
 
 sub run {
     my $self = shift;
@@ -139,10 +147,10 @@ sub setup_file_watcher {
                     if ( $self->has_tags ) {
                         $line = $self->add_tags_to_line($line);
                     }
-                    push( @buffer, $line );
+                    $self->buffer_push($line);
                 }
 
-                if ( @buffer > $self->flush_size ) {
+                if ( $self->buffer_size > $self->flush_size ) {
                     $self->send;
                 }
 
@@ -161,37 +169,66 @@ sub setup_file_watcher {
 
 sub send {
     my ($self) = @_;
-    return unless @buffer;
+
+    my $current_size = $self->buffer_size;
+    return unless $current_size;
+
+    my @to_send = $self->buffer_splice(0, $current_size);
 
     my %args;
     if ( $self->_with_auth ) {
         $args{head} = [ "Authorization" => $self->_auth_header ];
     }
-
-    $log->debugf( "Sending %i lines to influx", scalar @buffer );
+    $log->debugf( "Sending %i lines to influx", scalar @to_send);
     my $res = Hijk::request(
         {   method       => "POST",
             host         => $self->influx_host,
             port         => $self->influx_port,
             path         => "/write",
             query_string => "db=" . $self->influx_db,
-            body         => join( "\n", @buffer ),
+            body         => join( "\n", @to_send ),
             %args,
         }
     );
+    if (my $current_error = $res->{error}) {
+
+        my @errs = (qw/
+            CONNECT_TIMEOUT
+            READ_TIMEOUT
+            TIMEOUT
+            CANNOT_RESOLVE
+            REQUEST_SELECT_ERROR
+            REQUEST_WRITE_ERROR
+            REQUEST_ERROR
+            RESPONSE_READ_ERROR
+            RESPONSE_BAD_READ_VALUE
+            RESPONSE_ERROR
+            /);
+
+        my @matches;
+        foreach my $err (@errs) {
+            my $const = eval "Hijk::Error::" . $err;
+            if ( $current_error & $const ) {
+                push(@matches, $err);
+            }
+        }
+
+        $log->errorf("Hijk Request Error(s) cannot send %s", join(", ", @matches));
+
+        return;
+    
+    }
     if ( $res->{status} != 204 ) {
         $log->errorf(
             "Could not send %i lines to influx: %s",
-            scalar @buffer,
+            scalar @to_send,
             $res->{body}
         );
 
-        @buffer = ();
         return;
     }
 
-    @buffer = ();
-    return 1;
+    return scalar(@to_send);
 }
 
 sub add_tags_to_line {

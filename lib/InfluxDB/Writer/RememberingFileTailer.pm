@@ -15,7 +15,6 @@ use File::Spec::Functions;
 use File::Spec qw(splitpath);
 
 extends 'InfluxDB::Writer::FileTailer';
-my @buffer = @{\@InfluxDB::Writer::FileTailer::buffer};
 
 has 'done_dir' => ( is => 'rw', isa => "Str" );
 
@@ -67,23 +66,24 @@ sub slurp_and_send {
         $log->infof( "Slurping %s", $file );
 
         while (my $line = <$fh>) {
+            chomp($line);
             if ( $self->has_tags ) {
                 $line = $self->add_tags_to_line($line);
             }
-            push(@buffer, $line);
+            $self->buffer_push($line);
 
-            if ( @buffer > $self->flush_size ) {
+            if ( $self->buffer_size > $self->flush_size ) {
                 if (!$self->send) {
-                    $log->warnf("Unable to send buffer (%i lines)", scalar @buffer);
+                    $log->warnf("Unable to send buffer (%i lines)", $self->buffer_size);
                     return;
                 }
             }
         }
 
-        if (scalar @buffer ) {
-            $log->infof( "Clear buffer (size %i) for file %s", scalar(@buffer), $file );
+        if ( $self->buffer_size ) {
+            $log->infof( "Clear buffer (size %i) for file %s", $self->buffer_size, $file );
             if (!$self->send) {
-                $log->warnf("Unable to send clear buffer (%i lines)", scalar @buffer);
+                $log->warnf("Unable to send clear buffer (%i lines)", $self->buffer_size);
                 return;
             }
         }
