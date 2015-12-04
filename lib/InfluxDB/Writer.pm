@@ -2,7 +2,7 @@ package InfluxDB::Writer;
 use strict;
 use warnings;
 
-our $VERSION = '1.000';
+our $VERSION = '1.001';
 
 # ABSTRACT: Various tools to send lines to InfluxDB
 

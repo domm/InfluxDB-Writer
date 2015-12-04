@@ -1,4 +1,9 @@
 Changes for InfluxDB::Writer
 
+1.001   2015-12-04T10:59:06
+    - File Tailer that archives (and uploads) expired files (koki)
+    - Extract Auth to Role (koki)
+
+
 1.000   2015-09-24T00:15:06
     - init dzil
