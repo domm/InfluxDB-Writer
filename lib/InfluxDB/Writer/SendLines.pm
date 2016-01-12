@@ -43,8 +43,8 @@ sub run {
     my $cnt       = 0;
     my $print_cnt = $self->buffer_size * 50;
     while ( my $line = <$in> ) {
-        push( @buffer, $line );
-        if ( @buffer == $self->buffer_size ) {
+        my $elements = push( @buffer, $line );
+        if ( $elements >= $self->buffer_size ) {
             $self->send;
         }
         $cnt++;
@@ -95,27 +95,28 @@ sub send {
             )
             ) {
             # wait a bit and try again with smaller packages
-            my @half = splice( @buffer, 0, int( scalar @buffer / 2 ) );
+            my @half = splice( @$to_send, 0, int( scalar @$to_send / 2 ) );
             print ':';
             $self->send( 1, \@half );
-            $self->send( 1, \@buffer );
+            $self->send( 1, $to_send );
         }
         else {
             $log->errorf(
                 "Could not send %i lines to influx: %s",
-                scalar @buffer,
+                scalar @$to_send,
                 $res->{body}
             );
             open( my $fh, ">>", $self->file . '.err' ) || die $!;
-            print $fh join( '', @buffer );
+            print $fh join( '', @$to_send );
             close $fh;
             print 'X';
         }
     }
-    else {
+    else { # success
         print $second_try ? ',' : '.';
     }
-    @buffer = () unless $second_try;
+
+    @$to_send = () unless $second_try;
 }
 
 __PACKAGE__->meta->make_immutable;
