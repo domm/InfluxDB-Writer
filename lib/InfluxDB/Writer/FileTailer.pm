@@ -16,6 +16,7 @@ use Carp qw(croak);
 use InfluxDB::LineProtocol qw(line2data data2line);
 use Log::Any qw($log);
 use File::Spec::Functions;
+use Cwd 'abs_path';
 
 with qw(InfluxDB::Writer::AuthHeaderRole);
 
@@ -98,12 +99,48 @@ sub watch_dir {
     closedir($dh);
 }
 
+sub is_running {
+    my ($self, $pid, $file) = @_;
+
+    my $running = kill('ZERO', $pid);
+    return unless $running;
+
+    # This might only work on linux with $proc access
+    my $fd_dir = catdir("/", "proc", $pid, "fd");
+    if (-d $fd_dir ) {
+        my $abs_file = File::Spec->rel2abs( $file );
+
+        my $found = 0;
+        opendir(my $dh, $fd_dir);
+        while ( my $f = readdir($dh) ) {
+            $f = catfile($fd_dir, $f);
+
+            if ( -f $f && -l $f ) {
+
+                my $filename = Cwd::abs_path( $f );
+                if ($abs_file eq $filename) { #need to close dir
+                    $found = 1;
+                    last;
+                }
+            }
+        }
+        closedir($dh);
+    
+        return $found;
+    }
+
+    return $running;
+
+}
+
 sub setup_file_watcher {
     my ( $self, $file ) = @_;
 
     $file =~ /(\d+)\.stats$/;
     my $pid = int($1);
-    my $is_running = kill('ZERO', $pid);
+
+    my $is_running = $self->is_running( $pid, $file );
+
     if (!$is_running) {
 
         if ( my $w = $self->_files->{$file} ) {
