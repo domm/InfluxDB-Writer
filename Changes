@@ -1,5 +1,10 @@
 Changes for InfluxDB::Writer
 
+1.002   2016-02-01T12:43:58
+     - Check /proc/$pid/fd for open file (Klaus Ita)
+     - Separate Buffer and to_Send (Klaus Ita)
+
+
 1.001   2015-12-04T10:59:06
     - File Tailer that archives (and uploads) expired files (koki)
     - Extract Auth to Role (koki)
