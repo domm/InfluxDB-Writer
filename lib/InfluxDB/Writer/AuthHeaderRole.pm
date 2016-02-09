@@ -1,5 +1,7 @@
 package InfluxDB::Writer::AuthHeaderRole;
 
+# ABSTRACT: Helper role
+
 use Moose::Role;
 use MIME::Base64 qw/encode_base64/;
 use Log::Any qw($log);

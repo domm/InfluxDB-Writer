@@ -1,5 +1,7 @@
 package InfluxDB::Writer::RememberingFileTailer;
 
+# ABSTRACT: RememberingFileTailer
+
 use Moose;
 our $VERSION = '1.000';
 use feature 'say';
