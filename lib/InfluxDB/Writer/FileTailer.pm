@@ -216,16 +216,21 @@ sub send {
     if ( $self->_with_auth ) {
         $args{head} = [ "Authorization" => $self->_auth_header ];
     }
+
     $log->debugf( "Sending %i lines to influx", scalar @to_send);
+
+    ( my $body = join("\n", @to_send) ) =~ s/\n{2,}/\n/gs;
+
     my $request_data = { 
         method       => "POST",
         host         => $self->influx_host,
         port         => $self->influx_port,
         path         => "/write",
         query_string => "db=" . $self->influx_db,
-        body         => join( "\n", @to_send ),
+        body         => $body,
         %args,
     };
+    $log->debugf("The Hijk::Request: %s", $request_data);
     my $res = Hijk::request($request_data);
 
     if (my $current_error = $res->{error}) {
