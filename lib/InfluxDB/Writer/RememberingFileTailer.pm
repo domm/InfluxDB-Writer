@@ -98,6 +98,12 @@ sub slurp_and_send {
             if ( $self->has_tags ) {
                 $line = $self->add_tags_to_line($line);
             }
+            if ($line !~ /\s\d+$/) {
+                # Line does not end in timestamp
+                $log->warnf("Skipping probably broken line %s", $line);
+                next;
+            
+            }
             $self->buffer_push($line);
 
             if ( $self->buffer_size > $self->flush_size ) {

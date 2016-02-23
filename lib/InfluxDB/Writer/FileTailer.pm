@@ -217,16 +217,17 @@ sub send {
         $args{head} = [ "Authorization" => $self->_auth_header ];
     }
     $log->debugf( "Sending %i lines to influx", scalar @to_send);
-    my $res = Hijk::request(
-        {   method       => "POST",
-            host         => $self->influx_host,
-            port         => $self->influx_port,
-            path         => "/write",
-            query_string => "db=" . $self->influx_db,
-            body         => join( "\n", @to_send ),
-            %args,
-        }
-    );
+    my $request_data = { 
+        method       => "POST",
+        host         => $self->influx_host,
+        port         => $self->influx_port,
+        path         => "/write",
+        query_string => "db=" . $self->influx_db,
+        body         => join( "\n", @to_send ),
+        %args,
+    };
+    my $res = Hijk::request($request_data);
+
     if (my $current_error = $res->{error}) {
 
         my @errs = (qw/
@@ -257,9 +258,10 @@ sub send {
     }
     if ( $res->{status} != 204 ) {
         $log->errorf(
-            "Could not send %i lines to influx: %s",
+            "Could not send %i lines to influx: %s, req: %s",
             scalar @to_send,
-            $res->{body}
+            $res->{body},
+            $request_data
         );
 
         return;
