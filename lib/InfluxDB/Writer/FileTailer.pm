@@ -111,7 +111,7 @@ sub is_running {
         my $abs_file = File::Spec->rel2abs( $file );
 
         my $found = 0;
-        opendir(my $dh, $fd_dir);
+        opendir(my $dh, $fd_dir) or return; # process died in the meantime
         while ( my $f = readdir($dh) ) {
             $f = catfile($fd_dir, $f);
 
