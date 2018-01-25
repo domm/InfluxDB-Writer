@@ -171,11 +171,6 @@ sub setup_file_watcher {
     if ( open( my $fh, "<", $file ) ) {
         my $filestream = IO::Async::FileStream->new(
             read_handle => $fh,
-            on_initial  => sub {
-                my ($stream) = @_;
-                $stream->seek_to_last("\n");    # TODO remember last position?
-            },
-
             on_read => sub {
                 my ( $stream, $buffref ) = @_;
 
