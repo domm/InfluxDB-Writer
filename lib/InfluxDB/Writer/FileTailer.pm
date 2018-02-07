@@ -225,7 +225,7 @@ sub send {
         body         => $body,
         %args,
     };
-    $log->debugf("The Hijk::Request: %s", $request_data);
+    $log->tracef("The Hijk::Request: %s", $request_data);
     my $res = Hijk::request($request_data);
 
     if (my $current_error = $res->{error}) {
