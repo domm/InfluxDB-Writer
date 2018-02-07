@@ -144,6 +144,10 @@ sub setup_file_watcher {
     if (!$is_running) {
 
         if ( my $w = $self->_files->{$file} ) {
+            until ($w->is_read_eof()) {
+                $log->debugf("Reading to the end of %s", $file);
+                $w->read_more();
+            }
             $self->_loop->remove($w);
             undef $w;
             delete $self->_files->{$file};
