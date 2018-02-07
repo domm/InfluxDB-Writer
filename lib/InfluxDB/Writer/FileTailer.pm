@@ -111,7 +111,7 @@ sub is_running {
         my $abs_file = File::Spec->rel2abs( $file );
 
         my $found = 0;
-        opendir(my $dh, $fd_dir);
+        opendir(my $dh, $fd_dir) or return; # process died in the meantime
         while ( my $f = readdir($dh) ) {
             $f = catfile($fd_dir, $f);
 
@@ -144,6 +144,10 @@ sub setup_file_watcher {
     if (!$is_running) {
 
         if ( my $w = $self->_files->{$file} ) {
+            until ($w->is_read_eof()) {
+                $log->debugf("Reading to the end of %s", $file);
+                $w->read_more();
+            }
             $self->_loop->remove($w);
             undef $w;
             delete $self->_files->{$file};
@@ -171,11 +175,6 @@ sub setup_file_watcher {
     if ( open( my $fh, "<", $file ) ) {
         my $filestream = IO::Async::FileStream->new(
             read_handle => $fh,
-            on_initial  => sub {
-                my ($stream) = @_;
-                $stream->seek_to_last("\n");    # TODO remember last position?
-            },
-
             on_read => sub {
                 my ( $stream, $buffref ) = @_;
 
@@ -230,7 +229,7 @@ sub send {
         body         => $body,
         %args,
     };
-    $log->debugf("The Hijk::Request: %s", $request_data);
+    $log->tracef("The Hijk::Request: %s", $request_data);
     my $res = Hijk::request($request_data);
 
     if (my $current_error = $res->{error}) {
