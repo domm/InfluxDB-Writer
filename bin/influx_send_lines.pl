@@ -3,7 +3,9 @@ use strict;
 use warnings;
 use lib::projectroot qw(lib local::lib=local);
 
+# PODNAME: influx_send_lines.pl
 # ABSTRACT: Manually send files to influxdb for non-live stats or replay
+# VERSION
 
 package Runner;
 use Moose;

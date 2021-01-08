@@ -3,7 +3,9 @@ use strict;
 use warnings;
 use lib::projectroot qw(lib local::lib=local);
 
+# PODNAME: influx_compact_unwatched.pl
 # ABSTRACT: Compact all files that are currently not watched
+# VERSION
 
 package Runner;
 use Moose;

@@ -1,9 +1,9 @@
 package InfluxDB::Writer::RememberingFileTailer;
 
 # ABSTRACT: RememberingFileTailer
+# VERSION
 
 use Moose;
-our $VERSION = '1.000';
 use feature 'say';
 
 use IO::Async::File;

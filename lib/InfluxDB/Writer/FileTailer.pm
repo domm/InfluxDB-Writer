@@ -1,11 +1,11 @@
 package InfluxDB::Writer::FileTailer;
+
+# ABSTRACT: Tail files and send lines to InfluxDB
+# VERSION
+
 use strict;
 use warnings;
 use feature 'say';
-
-our $VERSION = '1.000';
-
-# ABSTRACT: Tail files and send lines to InfluxDB
 
 use Moose;
 use IO::Async::File;
