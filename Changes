@@ -2,7 +2,7 @@ Changes for InfluxDB::Writer
 
 {{$NEXT}}
 
-1.003     2021-01-08 21:56:15+01:00
+1.003     2021-01-08 21:58:11+01:00
     - dist housekeeping, Dist::Zilla::PluginBundle::Author::DOMM
 
 

@@ -32,7 +32,7 @@ We use [Measure::Everything::InfluxDB::](https://metacpan.org/pod/Measure%3A%3AE
 
 # AUTHOR
 
-Thomas Klausner <domm@cpan.org>
+Thomas Klausner <domm@plix.at>
 
 # COPYRIGHT AND LICENSE
 
