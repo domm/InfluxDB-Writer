@@ -13,8 +13,7 @@ use Hijk ();
 use Carp qw(croak);
 use InfluxDB::LineProtocol qw(line2data data2line);
 use Log::Any qw($log);
-use File::Spec::Functions;
-use File::Spec qw(splitpath);
+use File::Spec::Functions qw(catfile splitpath);
 
 extends 'InfluxDB::Writer::FileTailer';
 
@@ -38,7 +37,7 @@ sub archive_file {
     my $file = shift;
 
     my $done_dir = $self->done_dir;
-    my ( $vol, $dirs, $basename ) = File::Spec->splitpath($file);
+    my ( $vol, $dirs, $basename ) = splitpath($file);
 
     my $destination = catfile( $done_dir, $basename );
     my $count = 0;
